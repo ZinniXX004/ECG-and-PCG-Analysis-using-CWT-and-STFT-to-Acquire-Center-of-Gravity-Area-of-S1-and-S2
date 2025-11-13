@@ -1,0 +1,606 @@
+unit Unit3;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VclTee.TeeGDIPlus, VCLTee.TeEngine,
+  VCLTee.Series, Vcl.ExtCtrls, VCLTee.TeeProcs, VCLTee.Chart, Vcl.Buttons,
+  Vcl.StdCtrls, Vcl.Samples.Spin, Math;
+
+type
+  TForm3 = class(TForm)
+    Image1: TImage;
+    SpinButton1: TSpinButton;
+    Label1: TLabel;
+    SpinButton2: TSpinButton;
+    Label2: TLabel;
+    Button1: TButton;
+    BitBtn1: TBitBtn;
+    Chart1: TChart;
+    Series1: TLineSeries;
+    Image2: TImage;
+    Image3: TImage;
+    Label3: TLabel;
+    Label4: TLabel;
+    Button2: TButton;
+    OpenDialog1: TOpenDialog;
+    Button4: TButton;
+    Button7: TButton;
+    // Komponen baru yang ditambahkan di Form Designer
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Button8: TButton;
+    Label5: TLabel;
+    procedure Button1Click(Sender: TObject);
+    procedure SpinButton1DownClick(Sender: TObject);
+    procedure SpinButton2DownClick(Sender: TObject);
+    procedure DrawWavelet;
+    procedure FormCreate(Sender: TObject);
+    procedure SpinButton1UpClick(Sender: TObject);
+    procedure SpinButton2UpClick(Sender: TObject);
+    procedure imageclear2;
+    procedure imageclear3;
+    procedure Button2Click(Sender: TObject);
+
+    procedure RainbowColor(Value: Real; out R, G, B: Byte);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form3: TForm3;
+  Scale, Translation: Extended;
+  ndat2, RowCount, ColumnCount: Integer;
+  Bitmap: TBitmap;
+  x: array[-99000..99000] of Real;
+  t, f0, w0: Real;
+  input_status, cwt_status: Boolean;
+  a, xMin, xMax, b, rem, imm: Real;
+  cwtre, cwtim, cwt, z: array[1..1000, 1..1000] of Real;
+  namafile: TextFile;
+
+implementation
+
+{$R *.dfm}
+
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array[0..32767] of TRGBTriple;
+
+
+//--------NOMOR 3--------
+procedure TForm3.Button1Click(Sender: TObject);
+begin
+  Scale := 4;
+  Translation := -35;
+  DrawWavelet;
+end;
+
+procedure TForm3.SpinButton1DownClick(Sender: TObject);
+begin
+  if Scale > 0.2 then
+  Scale := Scale - 0.2;
+  DrawWavelet;
+end;
+
+
+procedure TForm3.SpinButton1UpClick(Sender: TObject);
+begin
+  Scale := Scale + 0.2;
+  DrawWavelet;
+end;
+
+procedure TForm3.SpinButton2DownClick(Sender: TObject);
+begin
+  Translation := Translation + 1.5;
+  DrawWavelet;
+end;
+
+procedure TForm3.SpinButton2UpClick(Sender: TObject);
+begin
+   Translation := Translation - 1.5;
+  DrawWavelet;
+end;
+
+procedure TForm3.DrawWavelet;
+var
+  i: Integer;
+  x_val, y1, y2, yBase: Double;
+  centerX, centerY: Integer;
+begin
+  Image1.Canvas.Brush.Color := clWhite;
+  Image1.Canvas.FillRect(Rect(0, 0, Image1.Width, Image1.Height));
+  centerX := 0;
+  centerY := Image1.Height div 2;
+
+  Image1.Canvas.Pen.Color := clBlack;
+  Image1.Canvas.Pen.Width := 2;
+  Image1.Canvas.MoveTo(0, centerY);
+  for i := 0 to Image1.Width do
+  begin
+    x_val := (i - centerX) / (50.0 * Scale) + Translation / 20.0;
+    yBase := Exp(-x_val * x_val);
+    Image1.Canvas.LineTo(i, centerY - Round(yBase * 50));
+  end;
+
+  Image1.Canvas.Pen.Color := clBlue;
+  Image1.Canvas.Pen.Width := 2;
+  Image1.Canvas.MoveTo(0, centerY);
+  for i := 0 to Image1.Width do
+  begin
+    x_val := (i - centerX) / (50.0 * Scale) + Translation / 20.0;
+    y1 := Sin(10 * x_val) * Exp(-x_val * x_val);
+    Image1.Canvas.LineTo(i, centerY - Round(y1 * 50));
+  end;
+
+  Image1.Canvas.Pen.Color := clRed;
+  Image1.Canvas.Pen.Width := 2;
+  Image1.Canvas.MoveTo(0, centerY);
+  for i := 0 to Image1.Width do
+  begin
+    x_val := (i - centerX) / (50.0 * Scale) + (Translation + 2) / 20.0;
+    y2 := Sin(10 * x_val) * Exp(-x_val * x_val);
+    Image1.Canvas.LineTo(i, centerY - Round(y2 * 50));
+  end;
+end;
+
+procedure TForm3.FormCreate(Sender: TObject);
+begin
+  Scale := 1;
+  Translation := -20;
+  DrawWavelet;
+end;
+
+procedure TForm3.imageclear3;
+begin
+  Image3.Canvas.Brush.Color := clWhite;
+  Image3.Canvas.FillRect(Rect(0,0,Image3.Width, Image3.Height));
+end;
+
+procedure TForm3.imageclear2;
+begin
+  Image2.Canvas.Brush.Color := clWhite;
+  Image2.Canvas.FillRect(Rect(0,0,Image2.Width, Image2.Height));
+end;
+
+//--------LOAD DATA--------
+procedure TForm3.Button2Click(Sender: TObject);
+var
+  i : Integer;
+  t1 : textfile ;
+  n , v1, v2 : array[0..4800] of extended ;
+begin
+  if OpenDialog1.Execute then
+  begin
+    if cwt_status=true then
+    begin
+      series1.clear;
+      imageclear2;
+      imageclear3;
+      Label3.Caption:='';
+      Label4.Caption:='';
+      FillChar(cwtre, SizeOf(cwtre), 0);
+      FillChar(cwtim, SizeOf(cwtim), 0);
+      FillChar(cwt, SizeOf(cwt), 0);
+    end;
+    series1.Title:='Input Signal';
+    ndat2:=4800;
+    t:=0;
+    AssignFile(t1,OpenDialog1.FileName);
+    Reset(t1);
+    readln(t1);
+    readln(t1);
+    for i:= 1 to ndat2 do
+    begin
+      ReadLn(t1, n[i], x[i], v2[i]);
+      t:=t+1/11025;
+    end;
+    CloseFile(t1);
+
+    Series1.Clear;
+    for i:= 1 to ndat2 do
+    begin
+      series1.addxy( i,x[i]);
+    end;
+    input_status:=true;
+    cwt_status:=false;
+  end;
+end;
+
+// KODE BARU UNTUK BUTTON8 (PROSES DENGAN RENTANG)
+procedure TForm3.Button8Click(Sender: TObject);
+var
+  i, j, k: Integer;
+  dt, db: Extended;
+  Row: PRGBTripleArray;
+  ScaleFactorX, ScaleFactorY: Real;
+  Value: Real;
+  dataAwal, dataAkhir: Integer;
+begin
+  if not input_status then
+  begin
+    ShowMessage('Silakan muat data sinyal terlebih dahulu.');
+    Exit;
+  end;
+
+  if not TryStrToInt(Edit1.Text, dataAwal) or not TryStrToInt(Edit2.Text, dataAkhir) then
+  begin
+    ShowMessage('Input tidak valid. Masukkan rentang data awal dan akhir berupa angka.');
+    Exit;
+  end;
+
+  if dataAwal >= dataAkhir then
+  begin
+    ShowMessage('Data awal harus lebih kecil dari data akhir.');
+    Exit;
+  end;
+
+  Series1.Clear;
+  Series1.Title := 'Input Signal (Data ' + IntToStr(dataAwal) + '-' + IntToStr(dataAkhir) + ')';
+  for i := dataAwal to dataAkhir do
+  begin
+    Series1.AddXY(i, x[i]);
+  end;
+
+  FillChar(cwtre, SizeOf(cwtre), 0);
+  FillChar(cwtim, SizeOf(cwtim), 0);
+  FillChar(cwt, SizeOf(cwt), 0);
+  FillChar(z, SizeOf(z), 0);
+
+  // --- RESOLUSI GAMBAR DIPERBESAR ---
+  RowCount := 300;
+  ColumnCount := 400;
+
+  a := 0.0019;
+  dt := 1 / 1000;
+  f0 := 0.849;
+  w0 := 2 * Pi * f0;
+  db := (dataAkhir - dataAwal) * dt / ColumnCount;
+
+  for i := 1 to RowCount do
+  begin
+    b := 0.0;
+    for j := 1 to ColumnCount do
+    begin
+      t := 0.0;
+      for k := dataAwal to dataAkhir do
+      begin
+        rem := 1 / Sqrt(a) * 1 / Power(Pi, 0.25) * Exp(-((t - b) / a) * ((t - b) / a) / 2.0) * Cos(w0 * (t - b) / a);
+        imm := 1 / Sqrt(a) * -1 / Power(Pi, 0.25) * Exp(-((t - b) / a) * ((t - b) / a) / 2.0) * Sin(w0 * (t - b) / a);
+        cwtre[j, i] := cwtre[j, i] + x[k] * rem;
+        cwtim[j, i] := cwtim[j, i] + x[k] * imm;
+        t := t + dt;
+      end;
+      cwt[j, i] := Sqrt(Sqr(cwtre[j, i]) + Sqr(cwtim[j, i]));
+      z[j, i] := cwt[j, i] / 2500;
+      b := b + db;
+    end;
+    a := a + 0.00031;
+  end;
+
+  xMin := cwt[1, 1];
+  xMax := cwt[1, 1];
+  for j := 1 to RowCount do
+    for i := 1 to ColumnCount do
+    begin
+      if cwt[i, j] < xMin then xMin := cwt[i, j];
+      if cwt[i, j] > xMax then xMax := cwt[i, j];
+    end;
+
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.Width := ColumnCount;
+    Bitmap.Height := RowCount;
+    Bitmap.PixelFormat := pf24bit;
+
+    for j := 0 to Bitmap.Height - 1 do
+    begin
+      Row := Bitmap.ScanLine[j];
+      for i := 0 to Bitmap.Width - 1 do
+      begin
+        ScaleFactorX := i / (Bitmap.Width - 1);
+        ScaleFactorY := j / (Bitmap.Height - 1);
+        Value := (cwt[Round(ScaleFactorX * (ColumnCount - 1)) + 1, Round(ScaleFactorY * (RowCount - 1)) + 1] - xMin) / (xMax - xMin);
+        RainbowColor(Power(Value, 0.5), Row[i].rgbtRed, Row[i].rgbtGreen, Row[i].rgbtBlue);
+      end;
+    end;
+    Image2.Picture.Graphic := Bitmap;
+  finally
+    Bitmap.Free;
+  end;
+      Bitmap := TBitmap.Create;
+    try
+      Bitmap.Width := Image3.Width;
+      Bitmap.Height := Image3.Height;
+      Bitmap.PixelFormat := pf24bit;
+      for j := 0 to Bitmap.Height - 1 do
+      begin
+        Row := Bitmap.ScanLine[j];
+        for i := 0 to Bitmap.Width - 1 do
+        begin
+          RainbowColor((Bitmap.Height - j) / (Bitmap.Height - 1), Row[i].rgbtRed, Row[i].rgbtGreen, Row[i].rgbtBlue);
+        end;
+      end;
+      Image3.Picture.Graphic := Bitmap;
+    finally
+      Bitmap.Free;
+    end;
+  Label3.Caption := Format('%.1f', [xMin]);
+  Label4.Caption := Format('%.1f', [xMax]);
+  cwt_status := True;
+end;
+
+
+
+
+procedure TForm3.Button4Click(Sender: TObject); // Load Data 740-870
+var
+  i: Integer;
+  t1: TextFile;
+  n, v1, v2: array[0..2400] of Extended;
+begin
+  if OpenDialog1.Execute then
+  begin
+    if cwt_status = True then
+    begin
+      Series1.Clear;
+      ImageClear2;
+      ImageClear3;
+      Label3.Caption := '';
+      Label4.Caption := '';
+      FillChar(cwtre, SizeOf(cwtre), 0);
+      FillChar(cwtim, SizeOf(cwtim), 0);
+      FillChar(cwt, SizeOf(cwt), 0);
+    end;
+    Series1.Title := 'Input Signal (Data 740-870)';
+    AssignFile(t1, OpenDialog1.FileName);
+    Reset(t1);
+    ReadLn(t1);
+    ReadLn(t1);
+    for i := 1 to 2400 do
+    begin
+      ReadLn(t1, n[i], x[i], v2[i]);
+    end;
+    CloseFile(t1);
+
+    Series1.Clear;
+    for i := 560 to 660 do
+    begin
+      Series1.AddXY(i, x[i]);
+    end;
+    input_status := True;
+    cwt_status := False;
+  end;
+end;
+
+
+procedure TForm3.Button5Click(Sender: TObject); // CWT Data 740-870
+var
+  i, j, k: Integer;
+  dt, db: Extended;
+  Row: PRGBTripleArray;
+  ScaleFactorX, ScaleFactorY: Real;
+  Value: Real;
+begin
+  if input_status = True then
+  begin
+    FillChar(cwtre, SizeOf(cwtre), 0);
+    FillChar(cwtim, SizeOf(cwtim), 0);
+    FillChar(cwt, SizeOf(cwt), 0);
+    FillChar(z, SizeOf(z), 0);
+
+    // --- RESOLUSI GAMBAR DIPERBESAR ---
+    RowCount := 300;
+    ColumnCount := 400;
+
+    a := 0.0019;
+    dt := 1 / 1000;
+    f0 := 0.849;
+    w0 := 2 * Pi * f0;
+    db := (660 - 560) * dt / ColumnCount;
+
+    for i := 1 to RowCount do
+    begin
+      b := 0.0;
+      for j := 1 to ColumnCount do
+      begin
+        t := 0.0;
+        for k := 560 to 660 do
+        begin
+          rem := 1 / Sqrt(a) * 1 / Power(Pi, 0.25) * Exp(-((t - b) / a) * ((t - b) / a) / 2.0) * Cos(w0 * (t - b) / a);
+          imm := 1 / Sqrt(a) * -1 / Power(Pi, 0.25) * Exp(-((t - b) / a) * ((t - b) / a) / 2.0) * Sin(w0 * (t - b) / a);
+          cwtre[j, i] := cwtre[j, i] + x[k] * rem;
+          cwtim[j, i] := cwtim[j, i] + x[k] * imm;
+          t := t + dt;
+        end;
+        cwt[j, i] := Sqrt(Sqr(cwtre[j, i]) + Sqr(cwtim[j, i]));
+        z[j, i] := cwt[j, i] / 2500;
+        b := b + db;
+      end;
+      a := a + 0.00031;
+    end;
+
+    xMin := cwt[1, 1];
+    xMax := cwt[1, 1];
+    for j := 1 to RowCount do
+      for i := 1 to ColumnCount do
+      begin
+        if cwt[i, j] < xMin then xMin := cwt[i, j];
+        if cwt[i, j] > xMax then xMax := cwt[i, j];
+      end;
+
+    Bitmap := TBitmap.Create;
+    try
+      Bitmap.Width := ColumnCount;
+      Bitmap.Height := RowCount;
+      Bitmap.PixelFormat := pf24bit;
+      for j := 0 to Bitmap.Height - 1 do
+      begin
+        Row := Bitmap.ScanLine[j];
+        for i := 0 to Bitmap.Width - 1 do
+        begin
+          ScaleFactorX := i / (Bitmap.Width-1);
+          ScaleFactorY := j / (Bitmap.Height-1);
+          Value := (cwt[Round(ScaleFactorX * (ColumnCount - 1)) + 1, Round(ScaleFactorY * (RowCount - 1)) + 1] - xMin) / (xMax - xMin);
+          RainbowColor(Power(Value, 0.5), Row[i].rgbtRed, Row[i].rgbtGreen, Row[i].rgbtBlue);
+        end;
+      end;
+      Image2.Picture.Graphic := Bitmap;
+    finally
+      Bitmap.Free;
+    end;
+
+    Label3.Caption := Format('%.1f', [xMin]);
+    Label4.Caption := Format('%.1f', [xMax]);
+    cwt_status := True;
+  end;
+end;
+
+
+procedure TForm3.Button6Click(Sender: TObject); // CWT Murmur
+var
+  i, j, k: Integer;
+  dt, db: Extended;
+  Row: PRGBTripleArray;
+  ScaleFactorX, ScaleFactorY: Real;
+  Value: Real;
+begin
+  if input_status = True then
+  begin
+    FillChar(cwtre, SizeOf(cwtre), 0);
+    FillChar(cwtim, SizeOf(cwtim), 0);
+    FillChar(cwt, SizeOf(cwt), 0);
+    FillChar(z, SizeOf(z), 0);
+
+    // --- RESOLUSI GAMBAR DIPERBESAR ---
+    RowCount := 300;
+    ColumnCount := 400;
+
+    a := 0.00201;
+    dt := 1 / 1000;
+    f0 := 0.849;
+    w0 := 2 * Pi * f0;
+    db := (ndat2 - 1) * dt / ColumnCount;
+
+    for i := 1 to RowCount do
+    begin
+      b := 0.0;
+      for j := 1 to ColumnCount do
+      begin
+        t := 0.0;
+        for k := 1 to ndat2 do
+        begin
+          rem := 1 / Sqrt(a) * 1 / Power(Pi, 0.25) * Exp(-((t - b) / a) * ((t - b) / a) / 2.0) * Cos(w0 * (t - b) / a);
+          imm := 1 / Sqrt(a) * -1 / Power(Pi, 0.25) * Exp(-((t - b) / a) * ((t - b) / a) / 2.0) * Sin(w0 * (t - b) / a);
+          cwtre[j, i] := cwtre[j, i] + x[k] * rem;
+          cwtim[j, i] := cwtim[j, i] + x[k] * imm;
+          t := t + dt;
+        end;
+        cwt[j, i] := Sqrt(Sqr(cwtre[j, i]) + Sqr(cwtim[j, i]));
+        z[j, i] := cwt[j, i] / 2500;
+        b := b + db;
+      end;
+      a := a + 0.00030;
+    end;
+
+    xMin := cwt[1, 1];
+    xMax := cwt[1, 1];
+    for j := 1 to RowCount do
+      for i := 1 to ColumnCount do
+      begin
+        if cwt[i, j] < xMin then xMin := cwt[i, j];
+        if cwt[i, j] > xMax then xMax := cwt[i, j];
+      end;
+
+    Bitmap := TBitmap.Create;
+    try
+      Bitmap.Width := ColumnCount;
+      Bitmap.Height := RowCount;
+      Bitmap.PixelFormat := pf24bit;
+      for j := 0 to Bitmap.Height - 1 do
+      begin
+        Row := Bitmap.ScanLine[j];
+        for i := 0 to Bitmap.Width - 1 do
+        begin
+          ScaleFactorX := i / (Bitmap.Width-1);
+          ScaleFactorY := j / (Bitmap.Height-1);
+          Value := (cwt[Round(ScaleFactorX * (ColumnCount - 1)) + 1, Round(ScaleFactorY * (RowCount - 1)) + 1] - xMin) / (xMax - xMin);
+          RainbowColor(Power(Value, 0.5), Row[i].rgbtRed, Row[i].rgbtGreen, Row[i].rgbtBlue);
+        end;
+      end;
+      Image2.Picture.Graphic := Bitmap;
+    finally
+      Bitmap.Free;
+    end;
+
+    Label3.Caption := Format('%.1f', [xMin]);
+    Label4.Caption := Format('%.1f', [xMax]);
+    cwt_status := True;
+  end;
+end;
+
+
+procedure TForm3.Button7Click(Sender: TObject); // Load ECG
+var
+  i : Integer;
+  t1 : textfile ;
+  n , v1, v2 : array[0..10000] of extended ;
+begin
+  if OpenDialog1.Execute then
+  begin
+    if cwt_status=true then
+    begin
+      series1.clear;
+      imageclear2;
+      imageclear3;
+      Label3.Caption:='';
+      Label4.Caption:='';
+      FillChar(cwtre, SizeOf(cwtre), 0);
+      FillChar(cwtim, SizeOf(cwtim), 0);
+      FillChar(cwt, SizeOf(cwt), 0);
+    end;
+    series1.Title:='Input Signal';
+    ndat2:=8265;
+    t:=0;
+    AssignFile(t1,OpenDialog1.FileName);
+    Reset(t1);
+    readln(t1);
+    readln(t1);
+    for i:= 1 to ndat2 do
+    begin
+      ReadLn(t1, n[i], x[i], v2[i]);
+      t:=t+1/11025;
+    end;
+    CloseFile(t1);
+
+    Series1.Clear;
+    for i:= 1 to ndat2 do
+    begin
+      series1.addxy( i,x[i]);
+    end;
+    input_status:=true;
+    cwt_status:=false;
+  end;
+end;
+
+procedure TForm3.RainbowColor(Value: Real; out R, G, B: Byte);
+begin
+  Value := EnsureRange(Value, 0, 1);
+  if Value < 0.14 then begin R := 128 - Round(128 * (Value / 0.14)); G := 0; B := 255; end
+  else if Value < 0.28 then begin R := 0; G := Round(255 * ((Value - 0.14) / 0.14)); B := 255; end
+  else if Value < 0.42 then begin R := 0; G := 255; B := 255 - Round(255 * ((Value - 0.28) / 0.14)); end
+  else if Value < 0.57 then begin R := Round(255 * ((Value - 0.42) / 0.15)); G := 255; B := 0; end
+  else if Value < 0.71 then begin R := 255; G := 255 - Round(127 * ((Value - 0.57) / 0.14)); B := 0; end
+  else if Value < 0.85 then begin R := 255; G := 128 - Round(128 * ((Value - 0.71) / 0.14)); B := 0; end
+  else begin R := 255 - Round(50 * ((Value - 0.85) / 0.15)); G := 0; B := 0; end;
+end;
+
+end.

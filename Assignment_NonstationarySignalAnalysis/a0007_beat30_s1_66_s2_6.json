@@ -1,0 +1,38 @@
+{
+  "record": "a0007",
+  "fs": 2000,
+  "pcg_channel": 0,
+  "ecg_channel": 1,
+  "beat_index": 30,
+  "segment_samples": {
+    "start": 49999,
+    "end": 52329
+  },
+  "cwt_method": "pascal-morl",
+  "cwt_params": {
+    "fmin": 5.0,
+    "fmax": 200.0,
+    "n_freqs": 120,
+    "backend": "pascal",
+    "use_explicit_freqs": true,
+    "col_count": 300,
+    "a0": 0.0019,
+    "a_step": 0.00031
+  },
+  "thresholds": {
+    "S1": 0.66,
+    "S2": 0.06,
+    "min_area": null,
+    "keep_top": 3
+  },
+  "CoG": {
+    "S1": {
+      "t_s": 25.07823816582671,
+      "f_hz": 42.43709484953664
+    },
+    "S2": {
+      "t_s": 25.44485761428139,
+      "f_hz": 42.1650820852622
+    }
+  }
+}

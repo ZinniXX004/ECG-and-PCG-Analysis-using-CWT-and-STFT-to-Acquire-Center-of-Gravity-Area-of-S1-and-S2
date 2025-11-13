@@ -1,0 +1,100 @@
+[
+  {
+    "file": "a0001.dat",
+    "shape": [
+      71332,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.0003483030052442867,
+    "bp_pcg_ecgband": 194180.49852071237,
+    "n_r_peaks": 32,
+    "median_rr_s": 0.983
+  },
+  {
+    "file": "a0002.dat",
+    "shape": [
+      41657,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.021894422392401587,
+    "bp_pcg_ecgband": 54772.28411095429,
+    "n_r_peaks": 28,
+    "median_rr_s": 0.768
+  },
+  {
+    "file": "a0003.dat",
+    "shape": [
+      61440,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.004788113896322892,
+    "bp_pcg_ecgband": 228105.83669210484,
+    "n_r_peaks": 30,
+    "median_rr_s": 1.1895
+  },
+  {
+    "file": "a0004.dat",
+    "shape": [
+      71193,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.0006314900619987462,
+    "bp_pcg_ecgband": 345928.17693594337,
+    "n_r_peaks": 39,
+    "median_rr_s": 0.98375
+  },
+  {
+    "file": "a0005.dat",
+    "shape": [
+      71332,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.021309507178785395,
+    "bp_pcg_ecgband": 2320777.7308783596,
+    "n_r_peaks": 53,
+    "median_rr_s": 0.67625
+  },
+  {
+    "file": "a0006.dat",
+    "shape": [
+      41518,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.04342844667356525,
+    "bp_pcg_ecgband": 1619625.7574721922,
+    "n_r_peaks": 28,
+    "median_rr_s": 0.743
+  },
+  {
+    "file": "a0007.dat",
+    "shape": [
+      71332,
+      2
+    ],
+    "fs": 2000,
+    "ecg_idx": 1,
+    "pcg_idx": 0,
+    "bp_ecg_ecgband": 0.02193658546264218,
+    "bp_pcg_ecgband": 1275853.0656093075,
+    "n_r_peaks": 43,
+    "median_rr_s": 0.76825
+  }
+]

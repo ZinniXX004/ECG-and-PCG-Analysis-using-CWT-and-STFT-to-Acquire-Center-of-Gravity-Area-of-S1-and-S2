@@ -1,0 +1,48 @@
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0001
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (71332, 2)
+first 10 samples (channel0): [ -69. -135. -104.  -25.  -63.   -3.   30.  -22.   26.   77.]
+
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0002
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (41657, 2)
+first 10 samples (channel0): [297. 728. 779. 802. 590. 242. 187. 134. 139.  97.]
+
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0003
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (61440, 2)
+first 10 samples (channel0): [-126. -306. -265. -310. -300. -332. -319. -341. -333. -331.]
+
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0004
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (71193, 2)
+first 10 samples (channel0): [350. 703. 599. 638. 591. 574. 529. 525. 496. 515.]
+
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0005
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (71332, 2)
+first 10 samples (channel0): [ -55.  -97.  -87. -125. -162. -247. -315. -410. -458. -493.]
+
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0006
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (41518, 2)
+first 10 samples (channel0): [1097. 2557. 2726. 3200. 3445. 3818. 3941. 4177. 4161. 4301.]
+
+D:\Sem 5\ASN (A)\5023231017_Jeremia Christ Immanuel Manalu_Assignment PCG>py testdatasetforecgandpcg.py a0007
+fs = 2000
+sig_name = ['PCG', 'ECG']
+units = ['mV', 'mV']
+p_signal shape: (71332, 2)
+first 10 samples (channel0): [1454. 3040. 2689. 2825. 2638. 2598. 2394. 2258. 2061. 1894.]
