@@ -1036,8 +1036,14 @@ class PCGAnalyzerGUI(QtWidgets.QMainWindow):
 
         self.ax_stft_2d.clear()
         # show in dB for readable dynamic range
-        Z = np.abs(S)
-        Zp = 20.0 * np.log10(Z + 1e-12)
+        #use_db = getattr(self, 'stft_3d_use_db', True)
+        #Zp = self.current_scalogram.copy()
+        Zp = np.abs(S)
+        '''if use_db:
+            with np.errstate(divide='ignore'):
+                Zp = 20.0 * np.log10(np.maximum(Zp, 1e-12))'''
+        #Z = np.abs(S)
+        #Zp = 20.0 * np.log10(Z + 1e-12)
         im = self.ax_stft_2d.imshow(Zp, origin='lower', aspect='auto', extent=extent, interpolation='nearest')
         try:
             # colorbar
@@ -1066,7 +1072,7 @@ class PCGAnalyzerGUI(QtWidgets.QMainWindow):
             except Exception: pass
 
         self.ax_stft_2d.set_xlabel("Time [s]"); self.ax_stft_2d.set_ylabel("Frequency [Hz]")
-        self.ax_stft_2d.set_title("STFT Spectrogram (dB)")
+        self.ax_stft_2d.set_title("STFT Spectrogram (for dB use must be changed within the GUI.py or hardcoded)")
         self._style_axis_dark(self.ax_stft_2d)
         try:
             self.fig_stft_2d.tight_layout()
@@ -1092,7 +1098,8 @@ class PCGAnalyzerGUI(QtWidgets.QMainWindow):
         T, F = np.meshgrid(times, freqs)
         # inside _plot_cwt_3d:
         use_db = getattr(self, 'stft_3d_use_db', True)
-        Zp = self.current_scalogram.copy()
+        #Zp = self.current_scalogram.copy()
+        Zp= np.abs(S)
         if use_db:
             with np.errstate(divide='ignore'):
                 Zp = 20.0 * np.log10(np.maximum(Zp, 1e-12))
